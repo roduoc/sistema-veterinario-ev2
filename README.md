@@ -15,7 +15,7 @@ Aplicacion para gestionar una clinica veterinaria mediante una sola aplicacion S
 - Spring Data JPA
 - Hibernate
 - Bean Validation
-- H2 Database
+- MySQL con Laragon
 - SLF4J incluido en Spring Boot
 
 ## Estructura
@@ -50,18 +50,23 @@ La aplicacion corre en:
 http://localhost:3006
 ```
 
-Consola H2:
+## Base De Datos
+
+La aplicacion esta configurada para MySQL en Laragon:
 
 ```text
-http://localhost:3006/h2-console
+Host: localhost
+Puerto: 3306
+Base de datos: sistema_veterinario
+Usuario: root
+Password:
 ```
 
-Datos de conexion H2:
+Spring Boot puede crear la base automaticamente por la opcion `createDatabaseIfNotExist=true`.
+Si prefieres crearla manualmente en Laragon, ejecuta:
 
-```text
-JDBC URL: jdbc:h2:mem:veterinariadb
-User: sa
-Password:
+```sql
+CREATE DATABASE sistema_veterinario;
 ```
 
 ## Endpoints
