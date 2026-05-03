@@ -1,0 +1,10 @@
+cl\duoc\veterinaria\controller\ClinicaController.class
+cl\duoc\veterinaria\VeterinariaApplication.class
+cl\duoc\veterinaria\exception\GlobalExceptionHandler.class
+cl\duoc\veterinaria\model\Dueno.class
+cl\duoc\veterinaria\repository\AnimalRepository.class
+cl\duoc\veterinaria\service\ClinicaService.class
+cl\duoc\veterinaria\repository\VeterinarioRepository.class
+cl\duoc\veterinaria\model\Veterinario.class
+cl\duoc\veterinaria\repository\DuenoRepository.class
+cl\duoc\veterinaria\model\Animal.class
