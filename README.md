@@ -1,6 +1,7 @@
 # Sistema Veterinario
 
 Proyecto academico simple en Java con Spring Boot para la asignatura Desarrollo FullStack 1. 
+
 Hecho por Vicente Zapata y Rodrigo Salinas | DSY1103
 
 
