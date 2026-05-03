@@ -47,7 +47,7 @@ mvn spring-boot:run
 La aplicacion corre en:
 
 ```text
-http://localhost:3006
+http://localhost:8080
 ```
 
 ## Base De Datos
