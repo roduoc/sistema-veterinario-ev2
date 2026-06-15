@@ -1,0 +1,7 @@
+.m2/
+target/
+**/target/
+*.zip
+*.log
+*.pdf
+.env

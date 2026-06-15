@@ -1,9 +1,0 @@
-package cl.duoc.veterinaria.repository;
-
-import cl.duoc.veterinaria.model.Dueno;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-@Repository
-public interface DuenoRepository extends JpaRepository<Dueno, Long> {
-}

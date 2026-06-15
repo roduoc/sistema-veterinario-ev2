@@ -1,30 +1,15 @@
 # Despliegue En Railway
 
-Railway debe recibir este proyecto como repositorio GitHub. La arquitectura usa 11 servicios de aplicacion y una base MySQL.
+Railway debe desplegar este repositorio como 11 servicios de aplicacion y una base MySQL.
 
-## 1. Subir El Proyecto A GitHub
-
-Desde la carpeta del proyecto:
-
-```text
-git init
-git add .
-git commit -m "Prepara despliegue Railway de microservicios"
-git branch -M main
-git remote add origin <url-del-repo-del-companero>
-git push -u origin main
-```
-
-## 2. Crear Proyecto En Railway
+## 1. Crear Proyecto
 
 1. Crear un proyecto nuevo en Railway.
 2. Agregar una base de datos MySQL.
-3. Agregar un servicio desde GitHub por cada microservicio.
-4. Cada servicio debe apuntar al mismo repositorio, pero con distinto `RAILWAY_DOCKERFILE_PATH`.
+3. Agregar 11 servicios desde el mismo repositorio GitHub.
+4. En cada servicio configurar `RAILWAY_DOCKERFILE_PATH` con el Dockerfile correspondiente.
 
-## 3. Dockerfile Por Servicio
-
-Configurar estas variables por servicio:
+## 2. Dockerfile Por Servicio
 
 ```text
 gateway-service                 RAILWAY_DOCKERFILE_PATH=Dockerfile.gateway-service
@@ -40,46 +25,52 @@ listar-veterinarios-service     RAILWAY_DOCKERFILE_PATH=Dockerfile.listar-veteri
 asignar-veterinario-service     RAILWAY_DOCKERFILE_PATH=Dockerfile.asignar-veterinario-service
 ```
 
-## 4. Variables De Base De Datos
-
-En cada microservicio que usa JPA configurar:
+Railway inyecta automaticamente `PORT`; los `application.yml` ya usan:
 
 ```text
-DB_URL=jdbc:mysql://<MYSQLHOST>:<MYSQLPORT>/<MYSQLDATABASE>?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
-DB_USERNAME=<MYSQLUSER>
-DB_PASSWORD=<MYSQLPASSWORD>
+server.port=${PORT:${SERVER_PORT:<puerto-local>}}
 ```
 
-Los valores se copian desde las variables del servicio MySQL de Railway.
+## 3. Variables MySQL
 
-No se configura `DB_URL` en `gateway-service` porque no accede directo a la base de datos.
-
-## 5. URLs Entre Servicios
-
-Despues de crear los servicios de backend, generar dominio publico o usar las URLs internas disponibles en Railway y configurar el Gateway:
+En cada microservicio con JPA configurar:
 
 ```text
-LISTAR_ANIMALES_URL=<url-de-listar-animales-service>
-BUSCAR_ANIMAL_URL=<url-de-buscar-animal-service>
-CREAR_ANIMAL_URL=<url-de-crear-animal-service>
-ACTUALIZAR_ANIMAL_URL=<url-de-actualizar-animal-service>
-BORRAR_ANIMAL_URL=<url-de-borrar-animal-service>
-CREAR_DUENO_URL=<url-de-crear-dueno-service>
-LISTAR_DUENOS_URL=<url-de-listar-duenos-service>
-CREAR_VETERINARIO_URL=<url-de-crear-veterinario-service>
-LISTAR_VETERINARIOS_URL=<url-de-listar-veterinarios-service>
-ASIGNAR_VETERINARIO_URL=<url-de-asignar-veterinario-service>
+DB_URL=jdbc:mysql://${{MySQL.MYSQLHOST}}:${{MySQL.MYSQLPORT}}/${{MySQL.MYSQLDATABASE}}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+DB_USERNAME=${{MySQL.MYSQLUSER}}
+DB_PASSWORD=${{MySQL.MYSQLPASSWORD}}
 ```
 
-En `asignar-veterinario-service` configurar tambien:
+No configurar estas variables en `gateway-service`, porque el Gateway no accede a la base de datos.
+
+## 4. URLs Internas Entre Servicios
+
+Primero desplegar los 10 microservicios de backend. Luego configurar estas variables en `gateway-service`.
+
+Usar los dominios internos o publicos que Railway asigne a cada servicio:
 
 ```text
-BUSCAR_ANIMAL_URL=<url-de-buscar-animal-service>
+LISTAR_ANIMALES_URL=<url-listar-animales-service>
+BUSCAR_ANIMAL_URL=<url-buscar-animal-service>
+CREAR_ANIMAL_URL=<url-crear-animal-service>
+ACTUALIZAR_ANIMAL_URL=<url-actualizar-animal-service>
+BORRAR_ANIMAL_URL=<url-borrar-animal-service>
+CREAR_DUENO_URL=<url-crear-dueno-service>
+LISTAR_DUENOS_URL=<url-listar-duenos-service>
+CREAR_VETERINARIO_URL=<url-crear-veterinario-service>
+LISTAR_VETERINARIOS_URL=<url-listar-veterinarios-service>
+ASIGNAR_VETERINARIO_URL=<url-asignar-veterinario-service>
 ```
 
-## 6. Dominio Publico Principal
+En `asignar-veterinario-service` configurar:
 
-Solo `gateway-service` necesita dominio publico para la defensa. Las rutas principales quedan:
+```text
+BUSCAR_ANIMAL_URL=<url-buscar-animal-service>
+```
+
+## 5. Servicio Publico Principal
+
+Publicar dominio publico solo para `gateway-service`. Las rutas principales seran:
 
 ```text
 GET    https://<gateway>.up.railway.app/api/animales/listar
@@ -94,12 +85,12 @@ GET    https://<gateway>.up.railway.app/api/veterinarios/listar
 PUT    https://<gateway>.up.railway.app/api/veterinarios/asignar?animalId=1&veterinarioId=1
 ```
 
-## 7. Swagger
+## 6. Swagger
 
-Cada backend expone Swagger en:
+Cada microservicio expone Swagger en:
 
 ```text
 https://<servicio>.up.railway.app/swagger-ui/index.html
 ```
 
-Si no se publican dominios para todos los backends, Swagger se puede mostrar localmente o publicando temporalmente el servicio que se quiera defender.
+Para defensa, se puede publicar temporalmente el dominio del microservicio que se quiera mostrar.

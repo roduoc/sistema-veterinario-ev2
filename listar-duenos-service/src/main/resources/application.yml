@@ -16,4 +16,4 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
 server:
-  port: ${SERVER_PORT:8087}
+  port: ${PORT:${SERVER_PORT:8087}}

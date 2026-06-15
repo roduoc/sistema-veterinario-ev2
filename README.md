@@ -53,7 +53,6 @@ GlobalExceptionHandler
 - JUnit 5 y Mockito
 - JaCoCo
 - Docker y Docker Compose
-- Railway
 - YAML para configuracion
 
 ## Microservicios
@@ -222,19 +221,9 @@ Detener y borrar volumen de base de datos:
 docker compose down -v
 ```
 
-## Despliegue Remoto En Railway
+## Despliegue Remoto
 
-El proyecto incluye Dockerfiles especificos por microservicio y una guia completa en `RAILWAY.md`.
-
-Cada servicio de Railway debe apuntar al mismo repositorio GitHub y configurar su `RAILWAY_DOCKERFILE_PATH`, por ejemplo:
-
-```text
-gateway-service -> Dockerfile.gateway-service
-listar-animales-service -> Dockerfile.listar-animales-service
-buscar-animal-service -> Dockerfile.buscar-animal-service
-```
-
-La base de datos se crea como servicio MySQL en Railway y sus variables se usan para definir `DB_URL`, `DB_USERNAME` y `DB_PASSWORD` en los microservicios.
+El proyecto incluye `render.yaml` como base para despliegue en Render usando Docker. Para un despliegue completo se deben crear servicios web por cada microservicio y configurar las variables de entorno equivalentes a las usadas en `docker-compose.yml`.
 
 ## Gestion De Versiones
 
