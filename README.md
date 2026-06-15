@@ -115,6 +115,12 @@ http://localhost:8090/swagger-ui/index.html
 
 Los controllers incluyen descripciones de endpoints, codigos de respuesta y proposito funcional.
 
+Swagger del microservicio desplegado en Railway:
+
+```text
+https://crear-dueno-service-production.up.railway.app/swagger-ui/index.html
+```
+
 ## Configuracion YAML
 
 Cada servicio usa `application.yml` con:
@@ -221,31 +227,29 @@ Detener y borrar volumen de base de datos:
 docker compose down -v
 ```
 
-## Despliegue Remoto
+## Despliegue Remoto En Railway
 
-El proyecto incluye `render.yaml` como base para despliegue en Render usando Docker. Para un despliegue completo se deben crear servicios web por cada microservicio y configurar las variables de entorno equivalentes a las usadas en `docker-compose.yml`.
-
-## Gestion De Versiones
-
-Se recomienda subir el proyecto a GitHub con commits tecnicos y progresivos, por ejemplo:
+Microservicio desplegado:
 
 ```text
-Implementa arquitectura base de microservicios
-Agrega documentacion Swagger a endpoints
-Agrega pruebas unitarias con Mockito
-Configura despliegue local con Docker Compose
+https://crear-dueno-service-production.up.railway.app
 ```
 
-## Defensa Tecnica
+Endpoint principal desplegado:
 
-Puntos clave para explicar:
+```text
+POST https://crear-dueno-service-production.up.railway.app/crear-dueno
+```
 
-- Cada endpoint se separo en un microservicio independiente.
-- El Gateway centraliza rutas y reescribe paths hacia cada servicio.
-- `veterinaria-domain` evita duplicar entidades y repositorios.
-- Las reglas de negocio viven en servicios, no en controllers.
-- `asignar-veterinario-service` demuestra comunicacion REST con WebClient.
-- Swagger documenta endpoints, respuestas y modelos.
-- Las pruebas usan mocks para repositorios y validan reglas de negocio.
-- YAML separa puertos, datasource y URLs entre servicios.
-- Docker Compose levanta MySQL y todos los microservicios localmente.
+Body de ejemplo:
+
+```json
+{
+  "nombre": "Juan Perez",
+  "telefono": "912345678",
+  "email": "juan@test.com",
+  "direccion": "Santiago"
+}
+```
+
+El proyecto incluye `RAILWAY.md` con la configuracion usada para desplegar microservicios en Railway mediante Dockerfiles especificos por servicio.
