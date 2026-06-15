@@ -1,0 +1,224 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: veterinaria-mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: sistema_veterinario
+    ports:
+      - "3306:3306"
+    volumes:
+      - veterinaria_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  gateway-service:
+    build:
+      context: .
+      args:
+        MODULE: gateway-service
+    container_name: gateway-service
+    environment:
+      SERVER_PORT: 8080
+      LISTAR_ANIMALES_URL: http://listar-animales-service:8081
+      BUSCAR_ANIMAL_URL: http://buscar-animal-service:8082
+      CREAR_ANIMAL_URL: http://crear-animal-service:8083
+      ACTUALIZAR_ANIMAL_URL: http://actualizar-animal-service:8084
+      BORRAR_ANIMAL_URL: http://borrar-animal-service:8085
+      CREAR_DUENO_URL: http://crear-dueno-service:8086
+      LISTAR_DUENOS_URL: http://listar-duenos-service:8087
+      CREAR_VETERINARIO_URL: http://crear-veterinario-service:8088
+      LISTAR_VETERINARIOS_URL: http://listar-veterinarios-service:8089
+      ASIGNAR_VETERINARIO_URL: http://asignar-veterinario-service:8090
+    ports:
+      - "8080:8080"
+    depends_on:
+      - listar-animales-service
+      - buscar-animal-service
+      - crear-animal-service
+      - actualizar-animal-service
+      - borrar-animal-service
+      - crear-dueno-service
+      - listar-duenos-service
+      - crear-veterinario-service
+      - listar-veterinarios-service
+      - asignar-veterinario-service
+
+  listar-animales-service:
+    build:
+      context: .
+      args:
+        MODULE: listar-animales-service
+    container_name: listar-animales-service
+    environment:
+      SERVER_PORT: 8081
+      DB_URL: jdbc:mysql://mysql:3306/sistema_veterinario?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD:
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  buscar-animal-service:
+    build:
+      context: .
+      args:
+        MODULE: buscar-animal-service
+    container_name: buscar-animal-service
+    environment:
+      SERVER_PORT: 8082
+      DB_URL: jdbc:mysql://mysql:3306/sistema_veterinario?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD:
+    ports:
+      - "8082:8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  crear-animal-service:
+    build:
+      context: .
+      args:
+        MODULE: crear-animal-service
+    container_name: crear-animal-service
+    environment:
+      SERVER_PORT: 8083
+      DB_URL: jdbc:mysql://mysql:3306/sistema_veterinario?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD:
+    ports:
+      - "8083:8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  actualizar-animal-service:
+    build:
+      context: .
+      args:
+        MODULE: actualizar-animal-service
+    container_name: actualizar-animal-service
+    environment:
+      SERVER_PORT: 8084
+      DB_URL: jdbc:mysql://mysql:3306/sistema_veterinario?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD:
+    ports:
+      - "8084:8084"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  borrar-animal-service:
+    build:
+      context: .
+      args:
+        MODULE: borrar-animal-service
+    container_name: borrar-animal-service
+    environment:
+      SERVER_PORT: 8085
+      DB_URL: jdbc:mysql://mysql:3306/sistema_veterinario?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD:
+    ports:
+      - "8085:8085"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  crear-dueno-service:
+    build:
+      context: .
+      args:
+        MODULE: crear-dueno-service
+    container_name: crear-dueno-service
+    environment:
+      SERVER_PORT: 8086
+      DB_URL: jdbc:mysql://mysql:3306/sistema_veterinario?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD:
+    ports:
+      - "8086:8086"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  listar-duenos-service:
+    build:
+      context: .
+      args:
+        MODULE: listar-duenos-service
+    container_name: listar-duenos-service
+    environment:
+      SERVER_PORT: 8087
+      DB_URL: jdbc:mysql://mysql:3306/sistema_veterinario?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD:
+    ports:
+      - "8087:8087"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  crear-veterinario-service:
+    build:
+      context: .
+      args:
+        MODULE: crear-veterinario-service
+    container_name: crear-veterinario-service
+    environment:
+      SERVER_PORT: 8088
+      DB_URL: jdbc:mysql://mysql:3306/sistema_veterinario?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD:
+    ports:
+      - "8088:8088"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  listar-veterinarios-service:
+    build:
+      context: .
+      args:
+        MODULE: listar-veterinarios-service
+    container_name: listar-veterinarios-service
+    environment:
+      SERVER_PORT: 8089
+      DB_URL: jdbc:mysql://mysql:3306/sistema_veterinario?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD:
+    ports:
+      - "8089:8089"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  asignar-veterinario-service:
+    build:
+      context: .
+      args:
+        MODULE: asignar-veterinario-service
+    container_name: asignar-veterinario-service
+    environment:
+      SERVER_PORT: 8090
+      DB_URL: jdbc:mysql://mysql:3306/sistema_veterinario?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD:
+      BUSCAR_ANIMAL_URL: http://buscar-animal-service:8082
+    ports:
+      - "8090:8090"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      buscar-animal-service:
+        condition: service_started
+
+volumes:
+  veterinaria_mysql_data:

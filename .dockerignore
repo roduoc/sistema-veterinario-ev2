@@ -1,0 +1,7 @@
+.git
+.m2
+target
+**/target
+*.zip
+*.log
+Evaluacion Parcial 3_Estudiante.pdf

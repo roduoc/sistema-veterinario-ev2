@@ -2,29 +2,19 @@
 
 Proyecto academico en Java con Spring Boot para la asignatura Desarrollo FullStack 1.
 
-Hecho por Vicente Zapata y Rodrigo Salinas | DSY1103
+Integrantes: Vicente Zapata y Rodrigo Salinas | DSY1103
 
 ## Descripcion
 
-Sistema para gestionar una clinica veterinaria mediante una arquitectura inicial de microservicios. El proyecto se organiza como un Maven multi-modulo: un API Gateway centraliza las rutas y cada endpoint original queda separado en su propio microservicio.
+Sistema de gestion para una clinica veterinaria implementado con arquitectura de microservicios. El sistema permite registrar y consultar duenos, veterinarios y animales, ademas de asignar veterinarios a animales registrados.
 
-## Tecnologias
+## Arquitectura
 
-- Java 17
-- Spring Boot
-- Spring Web
-- Spring Data JPA
-- Spring Cloud Gateway
-- Bean Validation
-- MySQL
-- Maven multi-modulo
-- YAML para configuracion de servicios y rutas
-
-## Estructura
+El proyecto usa Maven multi-modulo. Cada endpoint original fue separado en un microservicio independiente con estructura CSR: Controller, Service, Repository/Model.
 
 ```text
-gateway-service/
 veterinaria-domain/
+gateway-service/
 listar-animales-service/
 buscar-animal-service/
 crear-animal-service/
@@ -37,19 +27,36 @@ listar-veterinarios-service/
 asignar-veterinario-service/
 ```
 
-Cada microservicio mantiene una estructura CSR:
+`veterinaria-domain` centraliza entidades JPA, repositorios y manejo comun de errores:
 
 ```text
-src/main/java/cl/duoc/veterinaria/<servicio>/
-  controller/
-  service/
-  model/
-  repository/
+Animal
+Dueno
+Veterinario
+AnimalRepository
+DuenoRepository
+VeterinarioRepository
+GlobalExceptionHandler
 ```
 
-El modulo `veterinaria-domain` centraliza las entidades JPA `Animal`, `Dueno`, `Veterinario`, los repositorios Spring Data y el manejo comun de errores HTTP.
+## Tecnologias
 
-## Puertos
+- Java 17
+- Spring Boot 3.3.5
+- Spring Web
+- Spring Data JPA
+- Spring Cloud Gateway
+- Spring WebClient
+- MySQL
+- Bean Validation
+- Swagger/OpenAPI con Springdoc
+- JUnit 5 y Mockito
+- JaCoCo
+- Docker y Docker Compose
+- Railway
+- YAML para configuracion
+
+## Microservicios
 
 ```text
 gateway-service                 8080
@@ -80,23 +87,38 @@ GET    /api/veterinarios/listar
 PUT    /api/veterinarios/asignar?animalId=1&veterinarioId=1
 ```
 
-## Ejecucion Local
+## Comunicacion REST
 
-Desde un IDE como IntelliJ IDEA se puede abrir el proyecto raiz y ejecutar cada clase `Application` de los microservicios necesarios.
+`asignar-veterinario-service` consume a `buscar-animal-service` mediante `WebClient` antes de asignar un veterinario. Esto valida interoperabilidad entre microservicios y manejo de errores remotos.
 
-Desde terminal, si Maven esta instalado:
+Variable usada:
 
 ```text
-mvn clean package
-mvn -pl gateway-service spring-boot:run
-mvn -pl listar-animales-service spring-boot:run
+BUSCAR_ANIMAL_URL=http://localhost:8082
 ```
 
-Para probar una ruta mediante el Gateway, primero se debe iniciar `gateway-service` y el microservicio destino.
+## Swagger/OpenAPI
+
+Cada microservicio expone Swagger UI en:
+
+```text
+http://localhost:<puerto>/swagger-ui/index.html
+```
+
+Ejemplos:
+
+```text
+http://localhost:8081/swagger-ui/index.html
+http://localhost:8082/swagger-ui/index.html
+http://localhost:8086/swagger-ui/index.html
+http://localhost:8090/swagger-ui/index.html
+```
+
+Los controllers incluyen descripciones de endpoints, codigos de respuesta y proposito funcional.
 
 ## Configuracion YAML
 
-Cada microservicio define su configuracion en `src/main/resources/application.yml`, incluyendo:
+Cada servicio usa `application.yml` con:
 
 ```text
 spring.application.name
@@ -107,19 +129,134 @@ spring.datasource.password
 spring.jpa.hibernate.ddl-auto
 ```
 
-Las propiedades principales aceptan variables de entorno:
+Variables de entorno principales:
 
 ```text
+SERVER_PORT
 DB_URL
 DB_USERNAME
 DB_PASSWORD
-SERVER_PORT
+BUSCAR_ANIMAL_URL
+LISTAR_ANIMALES_URL
+CREAR_ANIMAL_URL
+ACTUALIZAR_ANIMAL_URL
+BORRAR_ANIMAL_URL
+CREAR_DUENO_URL
+LISTAR_DUENOS_URL
+CREAR_VETERINARIO_URL
+LISTAR_VETERINARIOS_URL
+ASIGNAR_VETERINARIO_URL
 ```
 
-`asignar-veterinario-service` tambien configura:
+## Pruebas Unitarias
+
+Las pruebas estan en `src/test/java` dentro de cada microservicio. Cubren servicios y reglas de negocio con estructura Given-When-Then, mocks de repositorios y asserts.
+
+Ejecutar pruebas:
 
 ```text
-BUSCAR_ANIMAL_URL
+mvn clean test
 ```
 
-Ese servicio consume por REST a `buscar-animal-service` antes de asignar un veterinario, validando que el animal exista en otro microservicio.
+Ejecutar pruebas con reporte de cobertura JaCoCo:
+
+```text
+mvn clean verify
+```
+
+Los reportes quedan en:
+
+```text
+<microservicio>/target/site/jacoco/index.html
+```
+
+## Ejecucion Local Con Maven
+
+Requisitos:
+
+```text
+JDK 17
+Maven
+MySQL local o Laragon
+```
+
+Base de datos local:
+
+```text
+Host: localhost
+Puerto: 3306
+Base: sistema_veterinario
+Usuario: root
+Password:
+```
+
+Ejecutar un servicio:
+
+```text
+mvn -pl listar-animales-service -am spring-boot:run
+```
+
+Ejecutar Gateway:
+
+```text
+mvn -pl gateway-service spring-boot:run
+```
+
+## Ejecucion Con Docker
+
+Levantar MySQL, Gateway y todos los microservicios:
+
+```text
+docker compose up --build
+```
+
+Detener:
+
+```text
+docker compose down
+```
+
+Detener y borrar volumen de base de datos:
+
+```text
+docker compose down -v
+```
+
+## Despliegue Remoto En Railway
+
+El proyecto incluye Dockerfiles especificos por microservicio y una guia completa en `RAILWAY.md`.
+
+Cada servicio de Railway debe apuntar al mismo repositorio GitHub y configurar su `RAILWAY_DOCKERFILE_PATH`, por ejemplo:
+
+```text
+gateway-service -> Dockerfile.gateway-service
+listar-animales-service -> Dockerfile.listar-animales-service
+buscar-animal-service -> Dockerfile.buscar-animal-service
+```
+
+La base de datos se crea como servicio MySQL en Railway y sus variables se usan para definir `DB_URL`, `DB_USERNAME` y `DB_PASSWORD` en los microservicios.
+
+## Gestion De Versiones
+
+Se recomienda subir el proyecto a GitHub con commits tecnicos y progresivos, por ejemplo:
+
+```text
+Implementa arquitectura base de microservicios
+Agrega documentacion Swagger a endpoints
+Agrega pruebas unitarias con Mockito
+Configura despliegue local con Docker Compose
+```
+
+## Defensa Tecnica
+
+Puntos clave para explicar:
+
+- Cada endpoint se separo en un microservicio independiente.
+- El Gateway centraliza rutas y reescribe paths hacia cada servicio.
+- `veterinaria-domain` evita duplicar entidades y repositorios.
+- Las reglas de negocio viven en servicios, no en controllers.
+- `asignar-veterinario-service` demuestra comunicacion REST con WebClient.
+- Swagger documenta endpoints, respuestas y modelos.
+- Las pruebas usan mocks para repositorios y validan reglas de negocio.
+- YAML separa puertos, datasource y URLs entre servicios.
+- Docker Compose levanta MySQL y todos los microservicios localmente.
